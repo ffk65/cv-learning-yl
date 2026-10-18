@@ -1,2 +1,7 @@
 # cv-learning : shandong university 
-control science 
+control science
+
+```
+- [ ] automation
+- [ ] artificial intelligence
+```
