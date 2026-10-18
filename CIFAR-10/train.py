@@ -18,11 +18,12 @@ train_loader = DataLoader(train_set, batch_size=64, shuffle=True)
 test_loader = DataLoader(test_set, batch_size=64, shuffle=False)
 
 # --- 定义模型 ---
-device = torch.accelerator.current_accelerator().type if torch.accelerator.is_available() else "cpu"
+# device = torch.accelerator.current_accelerator().type if torch.accelerator.is_available() else "cpu"
+device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 print(f"Using {device} device")
 
 class simpleCNN(nn.Module):
-    def __int__(self):
+    def __init__(self):
         super().__init__()
         self.features = nn.Sequential(
             nn.Conv2d(3, 32, kernel_size=3, padding=1), nn.ReLU(), nn.MaxPool2d(kernel_size=2, stride=2),
@@ -51,8 +52,8 @@ scheduler = torch.optim.lr_scheduler.CosineAnnealingLR(optimizer, T_max=20)
 best_acc, patience, wait = 0.0, 5, 0    # Early stopping 参数
 # --- 优化模型参数 ---
 if __name__ == '__main__':
-    for epoch in range(20):
-        print(f'Epoch [{epoch+1}/20]')
+    for epoch in range(4):
+        print(f'-----Epoch [{epoch+1}/4]-----')
         #--- 训练模型 ---
         model.train()
         for batch, (data, target) in enumerate(train_loader):
@@ -62,10 +63,11 @@ if __name__ == '__main__':
             loss = loss_fn(pred, target)
             loss.backward()
             optimizer.step()
+            if batch % 100 == 0:
+                print(f'Step [{batch}/{len(train_loader)}], Loss: {loss.item():.4f}')
         scheduler.step()
 
-        if batch % 100 == 0:
-            print(f'Step [{batch}/{len(train_loader)}], Loss: {loss.item():.4f}')
+
 
         # --- 测试模型 ---
         model.eval()
