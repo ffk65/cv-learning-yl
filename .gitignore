@@ -1,0 +1,13 @@
+# ===== 不上传 git 的东西（太大或不必要）=====
+# 数据集（CIFAR-10 约 170MB，下载在本地即可，不必上传）
+dataset/
+# TensorBoard 训练日志曲线
+runs/
+# 训练产出的模型权重
+checkpoints/
+# Python 自动生成的缓存
+__pycache__/
+# 其他权重文件
+*.pth
+
+.vscode/
