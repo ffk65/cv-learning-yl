@@ -24,7 +24,7 @@ if __name__ == "__main__":
     model.load_state_dict(torch.load(f'checkpoints/{mod}_best_model.pth', weights_only=True)) # 加载训练好的最佳模型参数
     model.eval()
 
-    # CIFAR-10 类别名称
+    # CIFAR-10 类别
     class_names = ['airplane', 'automobile', 'bird', 'cat', 'deer', 'dog', 'frog', 'horse', 'ship', 'truck']  
     
     # 真实标签和预测标签
