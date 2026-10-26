@@ -102,8 +102,8 @@ if __name__ == '__main__':
     from torch.utils.tensorboard import SummaryWriter
     writer = SummaryWriter(f'runs/cifar10_{mod}')  # 日志目录
 
-    for epoch in range(50):
-        print(f'-----第[{epoch+1}/50]轮训练开始-----')
+    for epoch in range(100):
+        print(f'-----第[{epoch+1}/100]轮训练开始-----')
         running_loss = 0.0
         #--- 训练模型 ---
         model.train()
@@ -133,7 +133,7 @@ if __name__ == '__main__':
                 total += target.size(0)
                 correct += (predicted == target).sum().item()
         epoch_acc = correct / total
-        print(f'第{epoch+1}轮训练结束,Train Accuracy: {epoch_acc:.4f},Train Loss: {epoch_loss:.4f}')
+        print(f'第{epoch+1}轮训练结束,Test Accuracy: {epoch_acc:.4f},Train Loss: {epoch_loss:.4f}')
 
         # --- TensorBoard 记录 (tensorboard --logdir runs启动)---
         writer.add_scalar('loss/train', epoch_loss, epoch) # 记录每轮平均训练损失
