@@ -18,7 +18,7 @@ if __name__ == "__main__":
     # parser.add_argument('--img_path', type=str, default=None, help="本地待预测图片路径，例如：'test_img/my_plane.jpg'")
     args = parser.parse_args()
     mod = args.mod
-    img_path = args.img_path # ==========【新增：读取图片路径参数】==========
+    # img_path = args.img_path # ==========【新增：读取图片路径参数】==========
 
     model = select_model(mod).to(device)
     model.load_state_dict(torch.load(f'checkpoints/{mod}_best_model.pth', weights_only=True)) # 加载训练好的最佳模型参数

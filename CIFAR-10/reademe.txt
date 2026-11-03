@@ -1,0 +1,7 @@
+from template import set_seed, get_device
+
+if __name__ == "__main__":
+    set_seed(42)
+    dev = get_device()
+    print(dev)
+    # 后面写你的模型、数据、训练代码

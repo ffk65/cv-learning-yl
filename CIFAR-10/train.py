@@ -46,6 +46,7 @@ class simpleCNN(nn.Module):
     def __init__(self):
         super().__init__()
         self.features = nn.Sequential(
+            # 输入通道数为3，输出通道数为32，卷积核大小为3，填充为1
             nn.Conv2d(3, 32, kernel_size=3, padding=1), nn.ReLU(), nn.MaxPool2d(kernel_size=2, stride=2),
             nn.Conv2d(32, 64, kernel_size=3, padding=1), nn.ReLU(), nn.MaxPool2d(kernel_size=2, stride=2),
             nn.Conv2d(64, 128, kernel_size=3, padding=1 ), nn.ReLU(), nn.MaxPool2d(kernel_size=2, stride=2)
@@ -96,7 +97,7 @@ if __name__ == '__main__':
     # --- 优化器 ---
     optimizer = torch.optim.SGD(model.parameters(), lr=0.01, momentum=0.9, weight_decay=5e-4)
     # ---LR调度器 ---
-    scheduler = torch.optim.lr_scheduler.CosineAnnealingLR(optimizer, T_max=50)
+    scheduler = torch.optim.lr_scheduler.CosineAnnealingLR(optimizer, T_max=100)
 
     # --- TensorBoard 记录 ---
     from torch.utils.tensorboard import SummaryWriter

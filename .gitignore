@@ -43,6 +43,4 @@ env/
 .DS_Store
 # Windows 缩略图缓存
 Thumbs.db
-# ---------- 6. 文档 ----------(暂时)
-README.md
 
