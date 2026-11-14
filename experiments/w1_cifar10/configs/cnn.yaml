@@ -1,0 +1,32 @@
+# ============================================================
+# cnn.yaml —— 简单 CNN 的完整实验配置（第 1 周基线）
+# 用法：python train.py --config cnn.yaml
+# 说明：所有超参都在这里，改实验只改这个文件，不用动 .py
+# ============================================================
+
+run_name: cnn_baseline        # 输出目录名：outputs/cnn_baseline/
+seed: 42                      # 随机种子（同一配置 + 同一种子 = 可复现）
+
+# ---------- 数据 ----------
+data_root: data/cifar10       # 相对“仓库根目录”，不是相对当前终端目录
+num_classes: 10               # CIFAR-10 类别数
+val_size: 5000                # 从 50k 训练集里分层切出 5k 做验证集（剩 45k 训练）
+batch_size: 128               # 批大小
+num_workers: 2                # 数据加载子进程；Windows 若报错可改成 0
+
+# ---------- 模型 ----------
+model:
+  name: cnn                   # cnn = 3 层卷积小网络
+  pretrained: false           # 不用 ImageNet 预训练
+
+# ---------- 训练 ----------
+epochs: 100                   # 最多 100 轮（余弦退火的 T_max 自动等于这个值）
+optimizer:
+  name: sgd                   # sgd / adamw
+  lr: 0.01                    # 初始学习率
+  momentum: 0.9               # SGD 动量
+  weight_decay: 0.0005        # L2 正则（5e-4）
+scheduler:
+  name: cosine                # 余弦退火，学习率从 0.01 平滑降到 0
+early_stopping_patience: 15   # 验证集连续 15 轮不提升就停
+log_every: 50                 # 每 50 个 batch 打一行进度日志

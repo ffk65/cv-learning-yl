@@ -1,0 +1,18 @@
+# ============================================================
+# requirements.txt —— 本项目 Python 依赖（与 conda 环境 cv 的实测版本一致）
+# 安装（务必用 cv 环境，base 的 torch 是 CPU 版）：
+#   conda activate cv
+#   pip install -r requirements.txt
+# cu118 版本的 torch 需要官方源：
+#   pip install torch==2.0.1 torchvision==0.15.2 torchaudio==2.0.2 --index-url https://download.pytorch.org/whl/cu118
+# ============================================================
+
+torch==2.0.1
+torchvision==0.15.2
+torchaudio==2.0.2
+numpy==1.26.4          # torch 2.0.1 按 NumPy 1.x 编译，必须 <2
+matplotlib==3.10.9
+scikit-learn==1.7.2     # 混淆矩阵 / 每类指标
+tensorboard==2.21.0     # 曲线记录
+PyYAML==6.0.3           # 读取 configs/*.yaml
+pillow                  # 图片读取（单图推理）

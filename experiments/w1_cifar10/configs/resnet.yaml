@@ -1,0 +1,33 @@
+# ============================================================
+# resnet.yaml —— ResNet-18 的完整实验配置（第 1 周对照模型）
+# 用法：python train.py --config resnet.yaml
+# 说明：与 cnn.yaml 唯一的实质差别是 model.name；其余超参保持一致，
+#       这样两个 run 的对比才是“只换了模型”的公平对比。
+# ============================================================
+
+run_name: resnet_baseline     # 输出目录名：outputs/resnet_baseline/
+seed: 42                      # 与 cnn.yaml 相同，保证数据切分完全一致
+
+# ---------- 数据 ----------
+data_root: data/cifar10       # 相对仓库根目录
+num_classes: 10               # 类别数
+val_size: 5000                # 45k 训练 / 5k 验证 / 10k 测试（测试只在 eval.py 用）
+batch_size: 64                # ResNet-18 参数量更大，6GB 显存用 64 更稳
+num_workers: 2                # Windows 报错可改 0
+
+# ---------- 模型 ----------
+model:
+  name: resnet18              # resnet18 = torchvision 的 ResNet-18
+  pretrained: false           # 随机初始化（与原实验一致；改 true 会下载 ImageNet 权重）
+
+# ---------- 训练 ----------
+epochs: 100                   # 最多 100 轮，余弦退火 T_max = epochs
+optimizer:
+  name: sgd                   # 与原实验一致
+  lr: 0.01                    # 初始学习率
+  momentum: 0.9               # 动量
+  weight_decay: 0.0005        # 5e-4
+scheduler:
+  name: cosine                # 余弦退火
+early_stopping_patience: 15   # 验证集 15 轮不提升则早停
+log_every: 50                 # 每 50 个 batch 一行日志
