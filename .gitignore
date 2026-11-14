@@ -9,6 +9,9 @@
 # 只忽略“仓库根”的 data/（data/cifar10 的 tar.gz + 解压目录）；
 # 前面的 / 表示锚定 .gitignore 所在目录，不加会连 experiments/*/data/（Dataset 源码）一起忽略
 /data/
+# 项目内的 VOC2007 原始数据（mmdetection 的做法：数据集放仓库里，但不进 Git）
+experiments/*/data/VOCdevkit/
+experiments/*/data/*.tar
 
 
 # ---------- 2. 训练产物（每次跑都会重新生成，不必上传）----------

@@ -41,6 +41,7 @@
 | `data/make_split.py` | VOC2007 `trainval.txt` 按 8:2 切 `data/splits/train.txt` / `val.txt` | 待写（步骤 8.1） |
 | `data/voc.py` | `VOCDataset`（jpg + xml → image/boxes/labels）+ `collate_fn` + 自检入口 | 待写（步骤 8.2） |
 | `data/splits/` | 存放切分后的图片 id 列表（由 `make_split.py` 生成，入库） | 待生成 |
+| `data/VOCdevkit/VOC2007/` | 原始 VOC2007（JPEGImages / Annotations / ImageSets，870MB，**已被 .gitignore 排除**） | 步骤 1 下载 |
 | `models/backbone.py` | `Backbone`：ResNet-18 取 C3/C4/C5 | 待写（步骤 4） |
 | `models/neck.py` | `FPN`：C3/C4/C5 → P3/P4/P5（256 通道） | 待写（步骤 4） |
 | `models/anchor.py` | 多尺度 anchor 生成（18900 个）+ `encode` / `decode` | 待写（步骤 5） |
@@ -110,7 +111,7 @@ conda activate cv
 cd D:\Research\Code\cv-learning\experiments\w4_retinanet_voc
 python -c "import torch; print(torch.__version__, torch.cuda.is_available())"   # 期望 2.0.1+cu118 True
 
-# 1. 数据（VOC2007 在 D:\Research\Data\VOCdevkit\VOC2007，约 870 MB；步骤 1）
+# 1. 数据（VOC2007 放在本项目 data/VOCdevkit/VOC2007，约 870 MB；已被 .gitignore 排除，步骤 1）
 python -m data.make_split        # 期望 train=4009, val=1002
 python -m data.voc               # 期望 image (3,320,320) / boxes (N,4) / labels (N,)
 
@@ -131,7 +132,7 @@ python -m trainer.eval --ckpt checkpoints/last.pth --exp EXP-002
 python -m tools.predict --img <图片路径> --ckpt checkpoints/last.pth
 ```
 
-数据位置约定：`D:\Research\Data\VOCdevkit\VOC2007\`。若换位置，只改 `config/config.py` 的 `data_root` 一行。
+数据位置约定：`data\VOCdevkit\VOC2007\`（跟着项目走，换机器只需重新下载）。它和 mmdetection 的 `data/` 一样：**物理上在仓库目录内，但被 `.gitignore` 排除，不进 GitHub**。若换位置，只改 `config/config.py` 的 `data_root` 一行。
 
 ---
 
