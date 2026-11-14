@@ -1,51 +1,52 @@
 # ============================================================
-# .gitignore —— 告诉 Git 哪些“本地文件”不要上传
-# 原则：
-#   代码 / 配置 / 文档 / 实验结论（figures、metrics、summary）= 上传
-#   数据集 / 权重 / TensorBoard / 训练日志 / 缓存 = 不上传
-# 一行一条规则；注释只能单独占一整行，不能写在规则后面
+# .gitignore —— 告诉 git 哪些"本地文件"不要上传到 GitHub
+# 用法：一行一条规则；以 # 开头的"整行"才是注释（注释不能写在规则后面）
+# 原则：数据集 / 训练产物 / 缓存 / 编辑器配置 = 不上传；
+#       脚本(.py)、文档(.md)、成果图片 = 上传
 # ============================================================
 
-# ---------- 1. 数据集（只读大盘，约 340MB；换机器时重新下载即可）----------
-# 只忽略“仓库根”的 data/（即 data/cifar10 的 tar.gz + 解压目录）；
+# ---------- 1. 数据集（最大，约 170MB，本地留一份即可）----------
+# 只忽略“仓库根”的 data/（data/cifar10 的 tar.gz + 解压目录）；
 # 前面的 / 表示锚定 .gitignore 所在目录，不加会连 experiments/*/data/（Dataset 源码）一起忽略
 /data/
 
-# ---------- 2. 每次 run 的“可再生”产物（按 run 目录局部忽略）----------
-# 注意：没有整目录忽略 outputs/，因为 figures/ metrics/ summary.* 属于结论，需要入库
-# 权重（可由训练复现）
+
+# ---------- 2. 训练产物（每次跑都会重新生成，不必上传）----------
+# TensorBoard 曲线的事件日志
+runs/
+# 训练出的模型权重
+checkpoints/
+# w1_cifar10 仍把产物写到 outputs/<run>/ 下：权重 / 事件文件 / 终端日志
 experiments/*/outputs/*/ckpt/
-# TensorBoard 事件文件
 experiments/*/outputs/*/tb/
-# 终端日志
 experiments/*/outputs/*/logs/
-# 兜底：任何落单的权重文件
-experiments/*/outputs/*/*.pth
-experiments/*/outputs/*/*.pt
-
-# ---------- 3. 模型权重（体积大、可复现）----------
-*.pth
-*.pt
-*.onnx
-*.engine
-
-# ---------- 4. Python 缓存 ----------
+# 以后若换别的日志库（保险）
+logs/
+wandb/
+notes
+# ---------- 3. Python 缓存（自动生成，传了也没意义）----------
 __pycache__/
+# 不在 __pycache__ 目录里的单个编译缓存
 *.pyc
+# 以后若用 Jupyter Notebook，它自动生成的检查点（保险）
 .ipynb_checkpoints/
 .venv/
 env/
 
+# ---------- 4. 模型权重文件（体积大，且可由训练复现）----------
+*.pth
+# 有些项目用 .pt 后缀（保险）
+*.pt
+# 以后若导出 ONNX 模型（保险）
+*.onnx
+
 # ---------- 5. 编辑器 / 系统杂项 ----------
+# VS Code 个人配置（各人不同，不必共享）
 .vscode/
+# 以后若用 PyCharm（保险）
 .idea/
-.trae/
+# macOS 自动生成
 .DS_Store
+# Windows 缩略图缓存
 Thumbs.db
 
-# ---------- 6. 第三方参考框架（只读，放在仓库外；此处仅兜底）----------
-reference/
-notes/
-# ---------- 7. W4-W5 复现项目的产物（沿用参考框架 checkpoints/ + runs/ 的命名）----------
-experiments/*/checkpoints/
-experiments/*/runs/
