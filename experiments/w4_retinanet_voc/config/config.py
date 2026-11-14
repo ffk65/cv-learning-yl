@@ -1,0 +1,36 @@
+# 文件：configs/config.py
+# 核心作用：全项目唯一超参数来源（路径 / 输入尺寸 / batch / lr / seed / anchor 参数），对应 mmdet 的 configs/_base_
+# 约定：所有路径用 PROJECT_ROOT 拼接，禁止写死绝对路径；换机器只改 DATA_ROOT 一行
+# 调用位置（计划）：data/voc.py、trainer/train.py、trainer/eval.py、tools/predict.py 导入本文件常量
+# 状态：占位文件，按任务书 9.3–9.6 填充
+# 调用关系：data/voc.py、models/*.py、losses/loss.py、trainer/*.py、tools/predict.py 全部从这里 import
+from pathlib import Path
+
+root = Path(__file__).resolve().parent.parent              # w4_retinanet_voc\ 的绝对路径
+data_root = root / "data" / "VOCdevkit" / "VOC2007"        # VOC2007 根目录（步骤 1 下到项目内，随项目走，换机器不用改）
+split_dir = root / "data" / "splits"                       # train.txt / val.txt（步骤 8）
+ckpt_dir = root / "checkpoints"                            # 权重输出目录
+run_dir = root / "runs"                                    # TensorBoard 日志目录
+
+img_size = 320            # 输入边长：6GB 显存的关键，别一上来就 800
+batch_size = 2            # 6GB 下 batch=2 稳；4 可能 OOM
+num_workers = 0           # Windows 先设 0，避免多进程句柄报错
+epochs = 12               # 先 12 轮看趋势，不追长训练
+lr = 1e-4                 # AdamW 学习率（预训练 backbone 微调常用量级）
+weight_decay = 1e-4       # 权重衰减，防过拟合
+num_classes = 20          # VOC 20 类（不含背景，用 sigmoid 多标签）
+fpn_channels = 256        # FPN 每层统一通道数
+
+# --- anchor：全部对齐 mmdetection RetinaNet 的默认值，不自己拍脑袋 ---
+anchor_strides = (8, 16, 32)      # P3/P4/P5 的下采样倍数，必须与 backbone 输出一致
+anchor_ratios = (0.5, 1.0, 2.0)   # 高宽比：扁 / 方 / 高（mmdet 默认 ratios）
+octave_base_scale = 4             # 每层基准边长 = stride × 4（mmdet 默认 octave_base_scale）
+scales_per_octave = 3             # 每层 3 个尺度，乘 2^(i/3)（mmdet 默认 scales_per_octave）
+bbox_std = (0.1, 0.1, 0.2, 0.2)   # 回归目标归一化 std（mmdet DeltaXYWHBBoxCoder 默认 target_stds）
+
+pos_iou = 0.5             # IoU ≥ 0.5 → 正样本
+neg_iou = 0.4             # IoU < 0.4 → 负样本；0.4~0.5 之间"忽略"
+score_thr = 0.05          # 推理时先滤低分，减少 NMS 负担
+nms_thr = 0.5             # NMS 的 IoU 阈值
+topk_per_img = 100        # 每张图最终最多保留 100 个框
+seed = 42                 # 随机种子（任务书强制要求固定）
