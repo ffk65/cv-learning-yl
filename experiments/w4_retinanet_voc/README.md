@@ -17,6 +17,10 @@
 
 **输入尺寸说明**：224 是 ImageNet 分类的标配，检测不用；mmdet VOC RetinaNet 用 `(1000, 600)`、detectron2 用 `800/1333`。本项目用 **320×320**（相当于 SSD320 这一档），是 6GB 显存下的取舍——anchor 18900 个，600 时需要约 6.7 万。代价是小目标 AP 偏低，报告里必须注明。
 
+**数据划分**：VOC2007 `trainval`（5011）按 8:2 随机切（seed=42）→ 4009 训练 / 1002 验证；**不做 07+12 联合训练**（时间与 6GB 显存不够），也不用官方 `train/val`（训练集只剩 2501）。取舍分析见任务书副本 8.0。
+
+**学习率调度**：`MultiStepLR(milestones=[8,11], gamma=0.1)`，与 mmdet `schedule_1x` 一致；优化器用 AdamW（单卡 batch=2 下比 SGD 稳）。
+
 **与参考框架的关系**：只参考 mmdetection / detectron2 的**分层与默认超参**，不抄注册器、配置继承、分布式和 `img_metas` 包装。
 
 | 层 | mmdetection / detectron2 | 本项目 |

@@ -20,6 +20,7 @@ def generate_anchors(feature_sizes, device):
     输出：(18900, 4) float32 —— 顺序 = 层 → 位置(h,w) → 尺度 → 比例
     调用位置：RetinaNet.forward()（models/retinanet.py）
     """
+    # 一共 40x40 + 20x20 + 10x10 = 2100 个位置，每位置 3×3=9 个 anchor → 18900 个
     anchors = []                                     # 用 Python list 收集，最后一次性转张量
     for (fh, fw), stride in zip(feature_sizes, anchor_strides):   # 逐层：P3→8, P4→16, P5→32
         base = stride * octave_base_scale            # 当前 FPN 层 anchor 的基础边长 = stride×4（mmdet: base_size=1, octave_base_scale=4）
@@ -53,6 +54,8 @@ def encode(anchors, gt):
     gh = gt[:, 3] - gt[:, 1]                         # GT 高
     gcx = gt[:, 0] + 0.5 * gw                        # GT 中心 x
     gcy = gt[:, 1] + 0.5 * gh                        # GT 中心 y
+    # 此偏移是训练时的回归目标，训练时会乘以 std 放大 10 倍，便于梯度下降
+    # 推理时偏移用reg_pred预测出来，乘以 std 再还原成真实框，不是此处偏移变量
     dx = (gcx - acx) / aw / bbox_std[0]              # 中心偏移 ÷ std_x=0.1
     dy = (gcy - acy) / ah / bbox_std[1]              #     放大10倍，信号增强，便于训练
     dw = torch.log(gw / aw) / bbox_std[2]            # 宽比取 log ÷ std_w=0.2
