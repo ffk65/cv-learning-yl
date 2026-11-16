@@ -56,7 +56,7 @@
 | `losses/loss.py` | `Loss`：`assign_targets`（IoU 0.5/0.4）+ `sigmoid_focal_loss` + smooth L1 | 待写（步骤 10） |
 | `utils/box.py` | `box_iou`、`clip_boxes`、`xyxy↔xywh`、`encode` / `decode` | 待写（步骤 9） |
 | `utils/metric.py` | VOC AP / mAP@0.5（全点插值） | 待写（步骤 13） |
-| `utils/misc.py` | `get_device` / `dump_run_config` / `save_json` | 待写（步骤 12） |
+| `utils/misc.py` | `get_device` / `dump_run_config` / `save_json` | ✅ 已完成（步骤 12.0） |
 | `trainer/train.py` | 训练入口：数据 → 模型 → loss → 反向 → ckpt → TensorBoard | 待写（步骤 12） |
 | `trainer/eval.py` | 评估入口：加载 `checkpoints/last.pth` → 推理 → mAP | 待写（步骤 13） |
 | `tools/overfit_one.py` | 单图过拟合验收（1 张图 loss 降到 <1.0） | 待写（步骤 11） |

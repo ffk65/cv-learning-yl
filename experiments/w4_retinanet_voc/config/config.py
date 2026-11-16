@@ -1,8 +1,8 @@
-# 文件：configs/config.py
+# 文件：config/config.py
 # 核心作用：全项目唯一超参数来源（路径 / 输入尺寸 / batch / lr / seed / anchor 参数），对应 mmdet 的 configs/_base_
-# 约定：所有路径用 PROJECT_ROOT 拼接，禁止写死绝对路径；换机器只改 DATA_ROOT 一行
-# 调用位置（计划）：data/voc.py、trainer/train.py、trainer/eval.py、tools/predict.py 导入本文件常量
-# 状态：占位文件，按任务书 9.3–9.6 填充
+# 约定：所有路径用 root 拼接，禁止写死绝对路径；换机器只改 data_root 一行
+# 调用位置：data/voc.py、trainer/train.py、trainer/eval.py、tools/predict.py 导入本文件参数
+# 命名约定：参数用小写（img_size / batch_size ...），不是常量；utils/misc.py 已按“小写命名”收集，勿改成全大写
 # 调用关系：data/voc.py、models/*.py、losses/loss.py、trainer/*.py、tools/predict.py 全部从这里 import
 from pathlib import Path
 

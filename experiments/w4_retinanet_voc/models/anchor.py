@@ -17,7 +17,7 @@ from config.config import (                          # 全部取自 config，数
 def generate_anchors(feature_sizes, device):
     """功能：生成所有 anchor（x1y1，x2y2 绝对坐标--左上角右上角）--特征图上映射原图坐标的瞄准框
     输入：feature_sizes=[(40,40),(20,20),(10,10)]（P3/P4/P5 的高宽）；device
-    输出：(18900, 4) float32 —— 顺序 = 层 → 位置(h,w) → 尺度 → 比例
+    输出：(18900, 4) float32 —— 顺序 = 层 → 位置(h,w) → 尺度 → 比例, (N,4) = [x1,y1,x2,y2]
     调用位置：RetinaNet.forward()（models/retinanet.py）
     """
     # 一共 40x40 + 20x20 + 10x10 = 2100 个位置，每位置 3×3=9 个 anchor → 18900 个
@@ -63,7 +63,7 @@ def encode(anchors, gt):
     return torch.stack([dx, dy, dw, dh], dim=1)      # (N,4)
 
 
-def decode(anchors, deltas):
+def decode(anchors, deltas):# 推理时输入anchor和输出的偏移
     """功能：把网络输出的偏移还原成真实框（encode 的逆运算）
     输入：anchors (N,4) xyxy；deltas (N,4) = [dx,dy,dw,dh]
     输出：(N,4) xyxy
@@ -77,4 +77,4 @@ def decode(anchors, deltas):
     gcy = deltas[:, 1] * bbox_std[1] * ah + acy      # 先乘回 std 再还原中心 y
     gw = torch.exp(deltas[:, 2] * bbox_std[2]) * aw  # 先乘回 std 再 exp 还原宽
     gh = torch.exp(deltas[:, 3] * bbox_std[3]) * ah  # 先乘回 std 再 exp 还原高
-    return torch.stack([gcx - gw / 2, gcy - gh / 2, gcx + gw / 2, gcy + gh / 2], dim=1) # 还原真实框 xyxy
+    return torch.stack([gcx - gw / 2, gcy - gh / 2, gcx + gw / 2, gcy + gh / 2], dim=1) # 还原应该输出真实框 xyxy

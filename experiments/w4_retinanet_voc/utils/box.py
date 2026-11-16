@@ -1,20 +1,13 @@
 # 文件：utils/box.py
-# 核心作用：框运算工具：IoU、框裁剪到图像边界、xyxy ↔ xywh 转换、解码后过滤
-# 调用关系：losses/loss.py（IoU 分配）与 trainer/eval.py、tools/predict.py（解码 / NMS）
-# 对应参考：detectron2 detectron2/modeling/box2box_transform.py + structures/boxes.py
-# 约定：全项目统一使用 xyxy（左上角原点、x 向右、y 向下）；文件内不 import 任何项目内模块
-# 状态：占位文件，待实现
-
-
-
-# 核心作用：框的 IoU、裁剪等基础运算, 提供给训练和推理阶段使用
+# 核心作用：计算bbox和GT框的 IoU、裁剪等基础运算, 提供给训练loss和推理阶段eval使用
 # 调用关系：losses/loss.py 的 assign_targets()、utils/metric.py、trainer/eval.py
+# 对应参考：detectron2 detectron2/modeling/box2box_transform.py + structures/boxes.py
 import torch                                        
 
-
+#给loss用
 def box_iou(a, b):
     """功能：两组框两两算 IoU
-    输入：a (N,4)、b (M,4)，均为 xyxy
+    输入：a (N,4)、b (M,4)，均为 xyxy---boxes
     输出：(N,M) IoU 矩阵
     调用位置：losses/loss.py；utils/metric.py
     """
@@ -46,7 +39,7 @@ def box_iou(a, b):
                         [50, 60]]])
             第 0 行：a0 分别和 b0,b1,b2
             第 1 行：a1 分别和 b0,b1,b2
-        4. wh = tensor([[[70, 160],
+        4. wh = tensor([[[70, 160], 6个交集框的宽高
                     [65, 155],
                     [50, 140]],
 
@@ -80,13 +73,13 @@ def box_iou(a, b):
     # IoU = 交集 / 并集；clamp防止并集为0除零爆炸
     return inter / union.clamp(min=1e-6)                
 
-
+# 给eval输出用
 def clip_boxes(boxes, width, height):
     """功能：把框裁到图像范围内
     输入：boxes (N,4) xyxy；width/height 图像宽高
     输出：(N,4)
     调用位置：trainer/eval.py 的 postprocess()
     """
-    boxes[:, 0::2] = boxes[:, 0::2].clamp(min=0, max=width)    # x1/x2
-    boxes[:, 1::2] = boxes[:, 1::2].clamp(min=0, max=height)   # y1/y2
+    boxes[:, 0::2] = boxes[:, 0::2].clamp(min=0, max=width)    # 保证 x1 不小于0, x2 不大于 width
+    boxes[:, 1::2] = boxes[:, 1::2].clamp(min=0, max=height)   # 保证 y1 不小于0, y2 不大于 height
     return boxes
