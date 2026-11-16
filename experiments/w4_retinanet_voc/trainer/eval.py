@@ -54,23 +54,15 @@ def postprocess(cls, reg, anchors, score_thr=score_thr, nms_thr=nms_thr, topk=to
 
 
 def save_reports(exp, ckpt_path, mAP, aps, split="val"):
-    """功能：把评估结果自动落盘成 3 个文件，不用手抄终端
-          ① runs/<exp>/eval_log.txt   —— 终端原样日志（原始记录，可 diff）
-          ② runs/<exp>/results.md     —— Markdown 表（直接贴进组会/报告）
-          ③ runs/<exp>/metrics.json   —— 机器可读（已有，见 evaluate）
+    """功能：把评估结果自动落盘成 Markdown 表格，不用手抄终端
+          ① runs/<exp>/results.md     —— Markdown 表（直接贴进组会/报告）
+          （metrics.json 由 evaluate() 单独写；终端原样 txt 已按要求删除，不再生成）
     输入：exp 实验编号、ckpt_path 权重路径、mAP 总指标、aps 每类 AP（dict）、split 数据划分
-    输出：无（写 3 个文件）
+    输出：无（写 runs/<exp>/results.md）
     调用位置：evaluate() 最后一步
     """
     out_dir = run_dir / exp                                    # runs/EXP-002/
     out_dir.mkdir(parents=True, exist_ok=True)                 # 目录不存在就建
-
-    # ---------- ① 原始日志：一行一条，和终端打印完全一致 ----------
-    log = [f"[eval] split={split}  ckpt={ckpt_path}",
-           f"[eval] mAP@0.5 = {mAP * 100:.2f}%"]
-    for c, ap in sorted(aps.items()):                          # 按类别 id 顺序（与终端一致）
-        log.append(f"  {voc_classes[c]:12s} AP={ap * 100:5.1f}")
-    (out_dir / "eval_log.txt").write_text("\n".join(log) + "\n", encoding="utf-8")  # 原始记录落盘
 
     # ---------- ② Markdown：总指标 + 20 类（按 AP 从高到低，方便看短板） ----------
     ranked = sorted(aps.items(), key=lambda kv: -kv[1])        # [(类id, AP), ...] 降序
@@ -125,8 +117,8 @@ def evaluate(ckpt_path, exp="EXP-002"):
         print(f"  {voc_classes[c]:12s} AP={ap * 100:5.1f}")
     save_json(run_dir / exp / "metrics.json",                  # 实验日志的结果原文
               {"mAP": mAP, "ap": {voc_classes[c]: a for c, a in aps.items()}})
-    save_reports(exp, ckpt_path, mAP, aps)                     # 自动写 eval_log.txt + results.md（不用手抄）
-    print(f"[eval] 已写出 {run_dir / exp}/metrics.json、eval_log.txt、results.md")  # 告诉用户去哪看
+    save_reports(exp, ckpt_path, mAP, aps)                     # 自动写 results.md（不用手抄）
+    print(f"[eval] 已写出 {run_dir / exp}/metrics.json、results.md")  # 告诉用户去哪看
     return mAP, aps
 
 

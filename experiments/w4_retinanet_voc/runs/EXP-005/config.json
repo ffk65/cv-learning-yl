@@ -1,0 +1,40 @@
+{
+  "root": "D:\\Research\\Code\\cv-learning\\experiments\\w4_retinanet_voc",
+  "data_root": "D:\\Research\\Code\\cv-learning\\experiments\\w4_retinanet_voc\\data\\VOCdevkit\\VOC2007",
+  "split_dir": "D:\\Research\\Code\\cv-learning\\experiments\\w4_retinanet_voc\\data\\splits",
+  "ckpt_dir": "D:\\Research\\Code\\cv-learning\\experiments\\w4_retinanet_voc\\checkpoints",
+  "run_dir": "D:\\Research\\Code\\cv-learning\\experiments\\w4_retinanet_voc\\runs",
+  "img_size": 448,
+  "batch_size": 2,
+  "num_workers": 0,
+  "epochs": 12,
+  "lr": 0.0001,
+  "weight_decay": 0.0001,
+  "num_classes": 20,
+  "fpn_channels": 256,
+  "anchor_strides": [
+    8,
+    16,
+    32
+  ],
+  "anchor_ratios": [
+    0.5,
+    1.0,
+    2.0
+  ],
+  "octave_base_scale": 4,
+  "scales_per_octave": 3,
+  "bbox_std": [
+    0.1,
+    0.1,
+    0.2,
+    0.2
+  ],
+  "pos_iou": 0.5,
+  "neg_iou": 0.4,
+  "score_thr": 0.05,
+  "nms_thr": 0.5,
+  "topk_per_img": 100,
+  "seed": 42,
+  "batch": 2
+}

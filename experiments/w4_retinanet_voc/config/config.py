@@ -12,10 +12,10 @@ split_dir = root / "data" / "splits"                       # train.txt / val.txt
 ckpt_dir = root / "checkpoints"                            # 权重输出目录
 run_dir = root / "runs"                                    # TensorBoard 日志目录
 
-img_size = 320            # 输入边长：6GB 显存的关键，别一上来就 800
-batch_size = 2            # 6GB 下 batch=2 稳；4 可能 OOM
+img_size = 448            # 输入边长：EXP-004 由 320 提到 448，专治小目标（pottedplant/bottle 只有十几个像素）
+batch_size = 1            # 448 下 batch 必须降到 1：单张像素是 320 的 1.96 倍，显存占用≈原来 320+batch2
 num_workers = 0           # Windows 先设 0，避免多进程句柄报错
-epochs = 12               # 先 12 轮看趋势，不追长训练
+epochs = 6                # 448 单轮计算量≈320 的 2 倍，6 轮≈原来 12 轮的总计算量，耗时基本持平
 lr = 1e-4                 # AdamW 学习率（预训练 backbone 微调常用量级）
 weight_decay = 1e-4       # 权重衰减，防过拟合
 num_classes = 20          # VOC 20 类（不含背景，用 sigmoid 多标签）

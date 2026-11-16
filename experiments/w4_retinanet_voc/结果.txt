@@ -314,3 +314,9 @@ TensorBoard 2.21.0 at http://localhost:6007/ (Press CTRL+C to quit)
   train        AP= 48.4
   tvmonitor    AP= 39.8                                            python -m tools.predict --img data\VOCdevkit\VOC2007\JPEGImages\000001.jpg_retinanet_voc> 
 [predict] 检测到 17 个框，已保存 runs/pred.jpg
+
+python -m trainer.eval --ckpt checkpoints/last.pth --exp EXP-002 
+python -m tools.predict --img data\VOCdevkit\VOC2007\JPEGImages\000001.jpg
+
+
+每次修改后保存在运行。哪些代码模块参数等等可以修改。和我的CIFAR区别。为什么这里只有12轮，2批次。改成val保存权重，test。我运行完了，先把大写字母写过去。固定seed后，每次运行哪些会不变

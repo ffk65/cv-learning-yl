@@ -118,10 +118,11 @@ def main():
 
     criterion = Loss()                                       # 损失
     params = [p for p in model.parameters() if p.requires_grad]        # 可训练参数
-    # 【标准】mmdet RetinaNet 1x 用 MultiStepLR：第 8、11 轮学习率 ×0.1（configs/_base_/schedules/schedule_1x.py）
+    # 【标准】mmdet RetinaNet 1x 用 MultiStepLR：总轮数的 2/3、11/12 处各 ×0.1
+    # 【当前】EXP-004 共 6 轮 → milestones=[4, 5]（对应 12 轮的 [8, 11]，别忘同步改）
     # 【可改】想要平滑衰减就换 CosineAnnealingLR(optimizer, T_max=args.epochs)
     optimizer = torch.optim.AdamW(params, lr=lr, weight_decay=weight_decay)
-    scheduler = torch.optim.lr_scheduler.MultiStepLR(optimizer, milestones=[8, 11], gamma=0.1)
+    scheduler = torch.optim.lr_scheduler.MultiStepLR(optimizer, milestones=[4, 5], gamma=0.1)
     scaler = torch.cuda.amp.GradScaler()                              # AMP
     exp_run_dir = run_dir / args.exp                                      # runs/EXP-002/
     writer = SummaryWriter(str(exp_run_dir))                              # 日志写到实验目录
@@ -140,7 +141,7 @@ def main():
         writer.add_scalar("train/lr", optimizer.param_groups[0]["lr"], epoch)
         torch.save({"model": model.state_dict(), "epoch": epoch}, ckpt_dir / "last.pth")  # 存"最新一轮"权重（覆盖写，不是最优；要 best.pth 见步骤 17）
         print(f"[第 {epoch+1} 轮训练结束] avg_loss={avg:.4f} -> saved checkpoints/last.pth")
-    writer.close()                                                    # 关闭日志
+    writer.close()                                                      # 关闭日志
 
 
 if __name__ == "__main__":

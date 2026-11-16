@@ -29,7 +29,7 @@ std = np.array([0.229, 0.224, 0.225], dtype=np.float32)             # 三通道�
 
 class VOCDataset(Dataset):
     """功能：VOC2007 检测数据集
-    输入：split ∈ {"train","val"}；img_size 默认取 config.img_size=320
+    输入：split ∈ {"train","val"}；img_size 默认取 config.img_size（当前 448，EXP-004）
     输出：每项 = (image[3,H,W] float32, boxes[N,4] float32 xyxy, labels[N] int64)
     调用位置：trainer/train.py 的 build_loader()；trainer/eval.py 的 evaluate()
     """
@@ -40,7 +40,7 @@ class VOCDataset(Dataset):
         self.ids = [x.strip() for x in ids if x.strip()]            # 清洗
         self.img_dir = data_root / "JPEGImages"                     # 图片目录
         self.ann_dir = data_root / "Annotations"                    # 标注目录
-        self.img_size = img_size                                    # 统一缩放到 320×320
+        self.img_size = img_size                                    # 统一缩放到 img_size×img_size（当前 448）
 
     def __len__(self):
         """功能：返回样本数；输入：无；输出：int；调用位置：DataLoader 采样时自动调用"""

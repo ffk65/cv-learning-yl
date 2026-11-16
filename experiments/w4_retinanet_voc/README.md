@@ -58,16 +58,17 @@
 | `utils/metric.py` | VOC AP / mAP@0.5（全点插值） | 待写（步骤 13） |
 | `utils/misc.py` | `get_device` / `dump_run_config` / `save_json` | ✅ 已完成（步骤 12.0） |
 | `trainer/train.py` | 训练入口：数据 → 模型 → loss → 反向 → ckpt → TensorBoard | 待写（步骤 12） |
-| `trainer/eval.py` | 评估入口：加载 `checkpoints/last.pth` → 推理 → mAP | 待写（步骤 13） |
+| `trainer/eval.py` | 评估入口：加载 `checkpoints/last.pth` → 推理 → mAP；**自动写 `runs/<exp>/` 下 2 个结果文件**（`metrics.json`、`results.md`） | ✅ 已完成（步骤 13 + `save_reports`） |
 | `tools/overfit_one.py` | 单图过拟合验收（1 张图 loss 降到 <1.0） | 待写（步骤 11） |
-| `tools/predict.py` | 单图推理：解码 + NMS + 画框保存 | 待写（步骤 14） |
-| `checkpoints/` | 权重输出目录（`*.pth` 被 `.gitignore` 忽略） | 空目录 |
-| `runs/` | TensorBoard 事件目录（被 `.gitignore` 忽略） | 空目录 |
-| `docs/experiments/` | 实验日志 `EXP-001.md`、`EXP-002.md` | 待写（步骤 15） |
-| `docs/figures/` | 曲线截图、预测图 | 待生成 |
-| `docs/repro_retinanet.md` | 复现报告（6 节） | 待写（步骤 15） |
+| `tools/predict.py` | 单图推理：解码 + NMS → 按分数取 topk → 放大画布画框（黑底白字标签），默认 `--thr 0.3 --topk 10 --scale 2` | ✅ 已完成（步骤 14） |
+| `checkpoints/` | 权重输出目录（`*.pth` 被 `.gitignore` 忽略） | 有 `last.pth` |
+| `runs/` | 每次实验一个文件夹：`config.json`、`metrics.json`、`results.md` **入库**；`events.out.tfevents.*`（TensorBoard）被忽略 | `runs/EXP-001`…`runs/EXP-005` |
+| `docs/experiments/` | 实验日志 `EXP-002.md`、`EXP-004.md`、`EXP-005.md`（目的/配置/过程/结果/结论/下一步） | ✅ 已写 |
+| `docs/figures/` | 曲线截图、预测图 | `EXP-005_curves.png`、`pred_EXP-005.png` |
+| `docs/实验结果汇总.md` | 一页纸：主实验表 + 逐类 AP + 消融 + 结论 + 复现命令 | ✅ 已填真实数字 |
 
-> **忽略规则**：仓库根 `.gitignore` 只忽略仓库根 `data/`（CIFAR-10 原始数据，`/data/` 已锚定）、本项目的 `checkpoints/`、`runs/`、`*.pth` 和 `__pycache__`；`data/*.py` 和 `data/splits/*.txt` 会正常入库，组会时能看到切分文件。
+> **忽略规则**：仓库根 `.gitignore` 忽略仓库根 `data/`（CIFAR-10 原始数据，`/data/` 已锚定）、`checkpoints/`、`*.pth`、`__pycache__`，以及 `experiments/*/runs/**/events.out.tfevents.*`（TensorBoard 二进制）；
+> **`runs/<exp>/` 下的 `config.json`、`metrics.json`、`results.md` 会正常入库**，作为实验原始记录；`data/*.py` 和 `data/splits/*.txt` 也入库。
 
 ---
 
@@ -102,8 +103,8 @@ trainer/train.py      trainer/eval.py          tools/predict.py
 | `python -m models.retinanet` | `__main__` → `RetinaNet.forward` → `Backbone.forward` → `FPN.forward` → `Head.forward` → `generate_anchors` | 待回填 |
 | `python -m tools.overfit_one` | `main()` → `VOCDataset` → `RetinaNet.forward` → `Loss.forward` → `backward` | 待回填 |
 | `python -m trainer.train` | `main()` → `set_seed` → `build_loader` → `RetinaNet.forward` → `Loss.forward` → `dump_run_config` → `save` | 待回填 |
-| `python -m trainer.eval` | `main()` → `load_state_dict` → `RetinaNet.forward` → `decode + NMS` → `compute_map` → `voc_ap` | 待回填 |
-| `python -m tools.predict` | `main()` → `load_image` → `RetinaNet.forward` → `decode + NMS` → 画框 | 待回填 |
+| `python -m trainer.eval` | `main()` → `load_state_dict` → `RetinaNet.forward` → `decode + NMS` → `compute_map` → `save_json` → `save_reports` | `trainer/eval.py`：`main` L133 / `evaluate` L96 / `save_reports` L56 / `postprocess` L28 |
+| `python -m tools.predict` | `main()` → `load_image` → `RetinaNet.forward` → `decode + NMS` → 排序取 topk → 放大画布画框 | `tools/predict.py`：`main` L44 / `load_image` L32 / `get_font` L24 |
 
 > 每实现一个文件，把该文件顶部的“功能 / 输入 / 输出 / 调用位置”注释补全，并回到本表填上真实行号。
 
@@ -179,3 +180,50 @@ git commit -m "feat: 简化版 RetinaNet（ResNet-18 + FPN + Focal Loss）复现
 搬走前需要补的两件事：① `config/config.py` 的 `data_root` 改成绝对路径或环境变量；② 新增独立的 `requirements.txt`。
 
 **通用函数策略**：`set_seed` / `get_device` / 日志 / JSON 这类工具，在**每个项目自己的 `utils/` 内放一份**（本项目放 `utils/misc.py`），**不跨项目 import**。代价是少量重复，换来“整目录搬走即可运行”。
+
+---
+
+## 八、当前结果与记录方式（2026-11-16）
+
+### 8.1 主结果
+
+| 实验 | 命令 | val mAP@0.5 | 权重 |
+| --- | --- | --- | --- |
+| EXP-001 | `python -m trainer.train --epochs 1 --batch 2 --exp EXP-001` | 未评估（只验证链路） | 被覆盖 |
+| EXP-002 | `python -m trainer.train --epochs 12 --batch 2 --exp EXP-002` | **33.34%** | `checkpoints/last.pth` |
+
+逐类 AP、loss 曲线数字、结论与下一步：**`docs/实验结果汇总.md`**（一页纸，组会投屏用）；
+过程记录：`docs/experiments/EXP-002.md`。
+
+### 8.2 mAP 原始记录是自动生成的（不用手抄终端）
+
+`trainer/eval.py` 的 `save_reports()`（L56）在评估结束后自动写 `results.md` 到 `runs/<exp>/`，`evaluate()` 另写 `metrics.json`：
+
+| 文件 | 内容 | 用途 |
+| --- | --- | --- |
+| `results.md` | Markdown 两张表（总指标 + 逐类 AP 降序） | 直接贴进组会/报告 |
+| `metrics.json` | `{"mAP":…, "ap":{类名:AP}}` | 画图/汇总脚本读 |
+
+> 终端原样日志 `eval_log.txt` 已移除，不再生成：内容与 `results.md` 完全重复，没必要多存一份。
+
+> 为什么放 `runs/<exp>/` 而不是项目根目录：`runs/` 是“一次实验一个文件夹”的产物区（对齐 mmdet 的 `work_dirs/`），根目录只留入口命令和代码，才不会越跑越乱。`runs/<exp>/` 的 config/metrics/results 会入库；只有 TensorBoard 的 `events.*` 被 `.gitignore` 排除（二进制、体积大、可由训练复现）。
+
+### 8.3 预测图（步骤 14）参数含义
+
+| 参数 | 默认 | 作用 | 什么时候改 |
+| --- | --- | --- | --- |
+| `--thr` | 0.3 | 只画分数高于它的框 | 框太多→调高 0.4/0.5；想看漏检→调低 0.2 |
+| `--topk` | 10 | 最多画几个框（按分数排序） | 密集场景调大 |
+| `--scale` | 2 | 画布放大倍数（320→640），标签才看得清 | 想更清楚就 3 |
+
+> `config.py` 里的 `score_thr=0.05` 是**评估用**（要召回，低了不伤 mAP），不要跟着改成 0.3，否则 mAP 会掉。
+
+### 8.4 mAP 33.34% 与任务书 >40% 的差距怎么补（按性价比）
+
+| 顺序 | 改动 | 预期收益 | 显存风险 |
+| --- | --- | --- | --- |
+| 1 | `img_size=512`、`batch_size=1`（EXP-004） | 小目标类回升，预估 +4～7 点 | 512 下 batch1 + AMP 约 5.5GB，可跑 |
+| 2 | `--epochs 24`、`MultiStepLR([16,22])` | +1～3 点 | 无 |
+| 3 | 随机水平翻转 p=0.5 | +0.5～1.5 点，抗过拟合 | 无 |
+| 4 | lr 2e-4 + 500 步 warmup | 收敛更充分 | 无 |
+| 5 | 每 3 轮评估存 `best.pth`（步骤 17） | 不用最后一轮，通常 +0.5～1 点 | 无 |
