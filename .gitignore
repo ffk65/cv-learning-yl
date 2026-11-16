@@ -18,6 +18,7 @@ experiments/*/data/*.tar
 # 只忽略 TensorBoard 事件文件（二进制、体积大、每次重跑都不同）；
 # runs/ 下的 config.json / metrics.json / results.md 是实验原始记录，要入库
 experiments/*/runs/**/events.out.tfevents.*
+
 # 若哪天把 TensorBoard 日志单独放进子目录（如 runs/EXP-005/tb/），一并忽略
 experiments/*/runs/**/[Tt]ensorboard*/
 # 仓库根目录若出现 runs/（当前没有），仍整体忽略
